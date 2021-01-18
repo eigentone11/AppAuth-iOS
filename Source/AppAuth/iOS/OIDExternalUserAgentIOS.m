@@ -165,7 +165,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
   // iOS 8 and earlier, use mobile Safari
   if (!openedUserAgent){
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
     openedUserAgent = [[UIApplication sharedApplication] openURL:requestURL];
+#pragma GCC diagnostic pop
   }
 
   if (!openedUserAgent) {
