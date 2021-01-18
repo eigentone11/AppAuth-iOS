@@ -18,6 +18,8 @@
 
 #import "OIDTVTokenRequestTests.h"
 
+#if TARGET_OS_TV
+
 #if SWIFT_PACKAGE
 @import AppAuthTV;
 #else
@@ -188,3 +190,5 @@ static NSString *const kOIDTVDeviceTokenGrantType =
 @end
 
 #pragma GCC diagnostic pop
+
+#endif // TARGET_OS_TV

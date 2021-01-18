@@ -16,6 +16,10 @@
         limitations under the License.
  */
 
+@import Foundation;
+
+#if TARGET_OS_TV
+
 #import <XCTest/XCTest.h>
 
 @class OIDTVTokenRequest;
@@ -49,3 +53,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // TARGET_OS_TV
