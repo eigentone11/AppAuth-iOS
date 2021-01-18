@@ -97,8 +97,15 @@ static NSString *const kTestIdTokenHint = @"id-token-hint";
     XCTAssertEqualObjects(request.additionalParameters[kTestAdditionalParameterKey],
                           kTestAdditionalParameterValue);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:request];
-    OIDEndSessionRequest *requestCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+  OIDEndSessionRequest *requestCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
     XCTAssertNotNil(requestCopy.configuration);
     XCTAssertEqualObjects(requestCopy.configuration.authorizationEndpoint,

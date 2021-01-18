@@ -49,7 +49,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpartial-availability"
   __weak SFSafariViewController *_safariVC;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   SFAuthenticationSession *_authenticationVC;
+#pragma clang diagnostic pop
   ASWebAuthenticationSession *_webAuthenticationVC;
 #pragma clang diagnostic pop
 }
@@ -128,6 +131,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (!openedUserAgent && !UIAccessibilityIsGuidedAccessEnabled()) {
       __weak OIDExternalUserAgentIOS *weakSelf = self;
       NSString *redirectScheme = request.redirectScheme;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
       SFAuthenticationSession *authenticationVC =
           [[SFAuthenticationSession alloc] initWithURL:requestURL
                                      callbackURLScheme:redirectScheme
@@ -148,6 +153,8 @@ NS_ASSUME_NONNULL_BEGIN
           [strongSelf->_session failExternalUserAgentFlowWithError:safariError];
         }
       }];
+#pragma clang diagnostic pop
+
       _authenticationVC = authenticationVC;
       openedUserAgent = [authenticationVC start];
     }
@@ -191,7 +198,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpartial-availability"
   SFSafariViewController *safariVC = _safariVC;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   SFAuthenticationSession *authenticationVC = _authenticationVC;
+#pragma clang diagnostic pop
   ASWebAuthenticationSession *webAuthenticationVC = _webAuthenticationVC;
 #pragma clang diagnostic pop
   

@@ -142,8 +142,11 @@ static NSString *kTokenEndpointAuthMethodTestValue = @"client_secret_basic";
   XCTAssertEqualObjects(request.additionalParameters[kTestAdditionalParameterKey],
                         kTestAdditionalParameterValue);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:request];
   OIDRegistrationRequest *requestCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
   // Not a full test of the configuration deserialization, but should be sufficient as a smoke test
   // to make sure the configuration IS actually getting serialized and deserialized in the

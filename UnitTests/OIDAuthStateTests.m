@@ -204,7 +204,10 @@
   NSError *oauthError =
       [[self class] OAuthTokenInvalidGrantErrorWithUnderlyingError:nonCompliantError];
   [authstate updateWithAuthorizationError:oauthError];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   XCTAssertNoThrow([NSKeyedArchiver archivedDataWithRootObject:authstate], @"");
+#pragma clang diagnostic pop
 }
 
 /*! @brief Tests @c OIDAuthState.updateWithAuthorizationResponse:error: with a success response.
@@ -358,8 +361,11 @@
   XCTAssert([OIDAuthState supportsSecureCoding], @"");
 
   OIDAuthState *authState = [[self class] testInstance];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:authState];
   OIDAuthState *authStateCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
   XCTAssertEqualObjects(authStateCopy.refreshToken, authState.refreshToken, @"");
   XCTAssertEqualObjects(authStateCopy.scope, authState.scope, @"");
@@ -375,9 +381,15 @@
   // Verify the error object is indeed restored.
   NSError *oauthError = [[self class] OAuthTokenInvalidGrantErrorWithUnderlyingError:nil];
   [authState updateWithTokenResponse:nil error:oauthError];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   data = [NSKeyedArchiver archivedDataWithRootObject:authState];
+#pragma clang diagnostic pop
   XCTAssertNotNil(authState.authorizationError, @"");
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   authStateCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
   XCTAssertEqualObjects(authStateCopy.authorizationError.domain,
                         authState.authorizationError.domain, @"");
   XCTAssertEqual(authStateCopy.authorizationError.code, authState.authorizationError.code, @"");

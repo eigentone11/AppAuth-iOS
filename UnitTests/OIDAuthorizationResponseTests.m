@@ -158,8 +158,11 @@ static NSString *const kTestScope = @"Scope";
  */
 - (void)testSecureCoding {
   OIDAuthorizationResponse *response = [[self class] testInstance];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:response];
   OIDAuthorizationResponse *responseCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
   // Not a full test of the request deserialization, but should be sufficient as a smoke test
   // to make sure the request IS actually getting serialized and deserialized in the

@@ -411,8 +411,11 @@ static NSString *const kDiscoveryDocumentNotDictionary =
   OIDServiceDiscovery *discovery =
       [[OIDServiceDiscovery alloc] initWithDictionary:serviceDiscoveryDictionary
                                                              error:&error];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:discovery];
   OIDServiceDiscovery *unarchived = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
   XCTAssertEqualObjects(discovery.discoveryDictionary, unarchived.discoveryDictionary, @"");
 }

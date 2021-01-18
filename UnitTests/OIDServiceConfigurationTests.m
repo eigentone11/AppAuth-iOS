@@ -363,8 +363,11 @@ static NSString *const kIssuerTestExpectedFullDiscoveryURL =
  */
 - (void)testSecureCoding {
   OIDServiceConfiguration *configuration = [[self class] testInstance];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:configuration];
   OIDServiceConfiguration *unarchived = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
   XCTAssertEqualObjects(configuration.authorizationEndpoint, unarchived.authorizationEndpoint, @"");
   XCTAssertEqualObjects(configuration.tokenEndpoint, unarchived.tokenEndpoint, @"");
