@@ -24,7 +24,7 @@ let package = Package(
     name: "AppAuth",
     platforms: [
         .macOS(.v10_10),
-        .iOS(.v12),
+        .iOS(.v14),
         .tvOS(.v9),
         .watchOS(.v2)
     ],
