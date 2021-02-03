@@ -183,6 +183,36 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
 
+    {
+      assert(callback_uri);
+      NSURL* const _Nullable callbackURI = [NSURL URLWithString:callback_uri];
+      assert(callbackURI);
+
+      NSMutableURLRequest* const _Nonnull request = [NSMutableURLRequest new];
+      assert(request);
+      request.URL = callbackURI;
+      request.HTTPMethod = @"GET";
+
+      NSURLSession* const _Nonnull session =
+        [NSURLSession sharedSession];
+      assert(session);
+
+      NSURLSessionDataTask* const _Nonnull sessionDataTask =
+        [session dataTaskWithRequest:request];
+      assert(sessionDataTask);
+
+      [sessionDataTask resume];
+
+      while (NSURLSessionTaskStateRunning == sessionDataTask.state) {
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.100]];
+      }
+
+      NSURLResponse* const _Nullable response = sessionDataTask.response;
+      NSError* const _Nullable error = sessionDataTask.error;
+
+      NSLog(@"Response: %@, Error: %@", response, error);
+    }
+
     NSString* _Nullable state = nil;
     NSString* _Nullable code = nil;
 
