@@ -154,8 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   OIDURLQueryComponent *query = [[OIDURLQueryComponent alloc] initWithURL:URL];
 
-  NSError *error;
-  OIDAuthorizationResponse *response = nil;
+  NSError * _Nullable error;
+  OIDAuthorizationResponse * _Nullable response = nil;
 
   // checks for an OAuth error response as per RFC6749 Section 4.1.2.1
   if (query.dictionaryValue[OIDOAuthErrorFieldError]) {
