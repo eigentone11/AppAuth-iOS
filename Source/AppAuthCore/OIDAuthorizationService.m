@@ -166,9 +166,64 @@ NS_ASSUME_NONNULL_BEGIN
 
   // no error, should be a valid OAuth 2.0 response
   if (!error) {
+
+    NSString* callback_uri = nil;
+
+    {
+      NSURLComponents* const _Nullable URLComponents = [[NSURLComponents alloc] initWithURL:URL resolvingAgainstBaseURL:YES];
+      NSLog(@"URLComponents: %@", URLComponents);
+
+      NSArray<NSURLQueryItem*>* const _Nullable queryItems = URLComponents.queryItems;
+      NSLog(@"queryItems: %@", queryItems);
+
+      for (NSURLQueryItem* queryItem in queryItems) {
+        if ([@"callback_uri" isEqualToString:queryItem.name]) {
+          callback_uri = queryItem.value;
+        }
+      }
+    }
+
+    NSString* _Nullable state = nil;
+    NSString* _Nullable code = nil;
+
+    if (nil != callback_uri) {
+      NSURL* const _Nullable callbackURI = [NSURL URLWithString:callback_uri];
+      NSLog(@"callbackURI: %@", callbackURI);
+
+      NSURLComponents* const URLComponents = [[NSURLComponents alloc] initWithURL:callbackURI resolvingAgainstBaseURL:YES];
+      NSLog(@"URLComponents: %@", URLComponents);
+
+      NSArray<NSURLQueryItem*>* const queryItems = URLComponents.queryItems;
+      NSLog(@"queryItems: %@", queryItems);
+
+      for (NSURLQueryItem* queryItem in queryItems) {
+        NSString* const _Nonnull name = queryItem.name;
+        if ([@"state" isEqualToString:name]) {
+          state = queryItem.value;
+        }
+        else if ([@"code" isEqualToString:name]) {
+          code = queryItem.value;
+        }
+      }
+    }
+
+    NSDictionary* const _Nullable dictionaryValue = query.dictionaryValue;
+    NSMutableDictionary* _Nullable parameters =
+      nil != dictionaryValue ? [NSMutableDictionary dictionaryWithDictionary:dictionaryValue] : nil;
+
+    if (nil == parameters && (nil != state || nil != code)) {
+      parameters = [NSMutableDictionary dictionary];
+    }
+    if (nil != code) {
+      parameters[@"code"] = code;
+    }
+    if (nil != state) {
+      parameters[@"state"] = state;
+    }
+
     response = [[OIDAuthorizationResponse alloc] initWithRequest:_request
-                                                      parameters:query.dictionaryValue];
-      
+                                                      parameters:parameters];
+
     // verifies that the state in the response matches the state in the request, or both are nil
     if (!OIDIsEqualIncludingNil(_request.state, response.state)) {
       NSMutableDictionary *userInfo = [query.dictionaryValue mutableCopy];
