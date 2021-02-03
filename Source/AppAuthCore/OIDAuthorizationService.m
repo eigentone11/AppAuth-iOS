@@ -143,9 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self shouldHandleURL:URL]) {
     return NO;
   }
-  
+
   AppAuthRequestTrace(@"Authorization Response: %@", URL);
-  
+
   // checks for an invalid state
   if (!_pendingauthorizationFlowCallback) {
     [NSException raise:OIDOAuthExceptionInvalidAuthorizationFlow
