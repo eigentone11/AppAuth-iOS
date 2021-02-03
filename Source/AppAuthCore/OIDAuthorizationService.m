@@ -182,13 +182,13 @@ NS_ASSUME_NONNULL_BEGIN
       error = [NSError errorWithDomain:OIDOAuthAuthorizationErrorDomain
                                   code:OIDErrorCodeOAuthAuthorizationClientError
                               userInfo:userInfo];
-      }
+    }
   }
-
+  
   [_externalUserAgent dismissExternalUserAgentAnimated:YES completion:^{
-      [self didFinishWithResponse:response error:error];
+    [self didFinishWithResponse:response error:error];
   }];
-
+  
   return YES;
 }
 
