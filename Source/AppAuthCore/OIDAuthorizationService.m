@@ -197,20 +197,79 @@ NS_ASSUME_NONNULL_BEGIN
         [NSURLSession sharedSession];
       assert(session);
 
-      NSURLSessionDataTask* const _Nonnull sessionDataTask =
-        [session dataTaskWithRequest:request];
-      assert(sessionDataTask);
+	  __block NSData* _Nullable data = nil;
+      __block NSURLResponse* _Nullable response = nil;
+      __block NSError* _Nullable error = nil;
+
+	 __block _Atomic bool once = false;
+
+
+	  NSURLSessionDataTask* const _Nonnull sessionDataTask =
+	  [session dataTaskWithRequest:request
+          completionHandler:^(NSData* const _Nullable pData,
+                              NSURLResponse* const _Nullable pURLResponse,
+                              NSError* const _Nullable pError) {
+								  data = [NSData dataWithData:pData];
+							      response = pURLResponse;
+							      error = pError;
+
+								  once = true;
+							  }
+	  ];
+
+
 
       [sessionDataTask resume];
 
-      while (NSURLSessionTaskStateRunning == sessionDataTask.state) {
-        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.100]];
+      while (!once) {
+          usleep(10000);
       }
 
-      NSURLResponse* const _Nullable response = sessionDataTask.response;
-      NSError* const _Nullable error = sessionDataTask.error;
+      NSLog(@"Response: %@, Data: %@, Error: %@", response, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error);
+    }
 
-      NSLog(@"Response: %@, Error: %@", response, error);
+    {
+      NSURL* const _Nullable URL = [NSURL URLWithString:@"https://falc.daikon.cloud/ios/session"];
+      assert(URL);
+
+      NSMutableURLRequest* const _Nonnull request = [NSMutableURLRequest new];
+      assert(request);
+      request.URL = URL;
+      request.HTTPMethod = @"GET";
+
+      NSURLSession* const _Nonnull session =
+        [NSURLSession sharedSession];
+      assert(session);
+
+	  __block NSData* _Nullable data = nil;
+      __block NSURLResponse* _Nullable response = nil;
+      __block NSError* _Nullable error = nil;
+
+	  _Atomic __block bool once = false;
+
+
+	  NSURLSessionDataTask* const _Nonnull sessionDataTask =
+	  [session dataTaskWithRequest:request
+          completionHandler:^(NSData* const _Nullable pData,
+                              NSURLResponse* const _Nullable pURLResponse,
+                              NSError* const _Nullable pError) {
+								  data = [NSData dataWithData:pData];
+							      response = pURLResponse;
+							      error = pError;
+
+								  once = true;
+							  }
+	  ];
+
+
+
+      [sessionDataTask resume];
+
+      while (!once) {
+          usleep(10000);
+      }
+
+      NSLog(@"Response: %@, Data: %@, Error: %@", response, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error);
     }
 
     NSString* _Nullable state = nil;
