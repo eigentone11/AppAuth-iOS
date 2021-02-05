@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSError *safariError = [OIDErrorUtilities errorWithCode:OIDErrorCodeSafariOpenError
                                             underlyingError:nil
                                                 description:@"Unable to open Safari."];
-    [self didFinishWithResponse:nil error:safariError];
+    [self didFinishWithExtractedCallbackURI:nil error:safariError];
   }
 }
 
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
       NSError *error = [OIDErrorUtilities errorWithCode:OIDErrorCodeUserCanceledAuthorizationFlow
                                         underlyingError:nil
                                             description:@"Authorization flow was cancelled."];
-      [self didFinishWithResponse:nil error:error];
+      [self didFinishWithExtractedCallbackURI:nil error:error];
       if (completion) completion();
   }];
 }
@@ -154,8 +154,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   OIDURLQueryComponent *query = [[OIDURLQueryComponent alloc] initWithURL:URL];
 
-  NSError * _Nullable error;
-  OIDAuthorizationResponse * _Nullable response = nil;
+  NSError * _Nullable error = nil;
+  NSURL* _Nullable extractedCallbackURI = nil;
 
   // checks for an OAuth error response as per RFC6749 Section 4.1.2.1
   if (query.dictionaryValue[OIDOAuthErrorFieldError]) {
@@ -166,191 +166,46 @@ NS_ASSUME_NONNULL_BEGIN
 
   // no error, should be a valid OAuth 2.0 response
   if (!error) {
-
     NSString* callback_uri = nil;
 
-    {
-      NSURLComponents* const _Nullable URLComponents = [[NSURLComponents alloc] initWithURL:URL resolvingAgainstBaseURL:YES];
-      NSLog(@"URLComponents: %@", URLComponents);
+    NSURLComponents* const _Nullable URLComponents =
+    [[NSURLComponents alloc] initWithURL:URL resolvingAgainstBaseURL:YES];
 
-      NSArray<NSURLQueryItem*>* const _Nullable queryItems = URLComponents.queryItems;
-      NSLog(@"queryItems: %@", queryItems);
+    NSArray<NSURLQueryItem*>* const _Nullable queryItems = URLComponents.queryItems;
 
-      for (NSURLQueryItem* queryItem in queryItems) {
-        if ([@"callback_uri" isEqualToString:queryItem.name]) {
-          callback_uri = queryItem.value;
-        }
+    for (NSURLQueryItem* queryItem in queryItems) {
+      if ([@"callback_uri" isEqualToString:queryItem.name]) {
+        callback_uri = queryItem.value;
       }
     }
 
-    {
-      assert(callback_uri);
-      NSURL* const _Nullable callbackURI = [NSURL URLWithString:callback_uri];
-      assert(callbackURI);
-
-      NSMutableURLRequest* const _Nonnull request = [NSMutableURLRequest new];
-      assert(request);
-      request.URL = callbackURI;
-      request.HTTPMethod = @"GET";
-
-      NSURLSession* const _Nonnull session =
-        [NSURLSession sharedSession];
-      assert(session);
-
-	  __block NSData* _Nullable data = nil;
-      __block NSURLResponse* _Nullable response = nil;
-      __block NSError* _Nullable error = nil;
-
-	 __block _Atomic bool once = false;
-
-
-	  NSURLSessionDataTask* const _Nonnull sessionDataTask =
-	  [session dataTaskWithRequest:request
-          completionHandler:^(NSData* const _Nullable pData,
-                              NSURLResponse* const _Nullable pURLResponse,
-                              NSError* const _Nullable pError) {
-								  data = [NSData dataWithData:pData];
-							      response = pURLResponse;
-							      error = pError;
-
-								  once = true;
-							  }
-	  ];
-
-
-
-      [sessionDataTask resume];
-
-      while (!once) {
-          usleep(10000);
-      }
-
-      NSLog(@"Response: %@, Data: %@, Error: %@", response, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error);
-    }
-
-    {
-      NSURL* const _Nullable URL = [NSURL URLWithString:@"https://falc.daikon.cloud/ios/session"];
-      assert(URL);
-
-      NSMutableURLRequest* const _Nonnull request = [NSMutableURLRequest new];
-      assert(request);
-      request.URL = URL;
-      request.HTTPMethod = @"GET";
-
-      NSURLSession* const _Nonnull session =
-        [NSURLSession sharedSession];
-      assert(session);
-
-	  __block NSData* _Nullable data = nil;
-      __block NSURLResponse* _Nullable response = nil;
-      __block NSError* _Nullable error = nil;
-
-	  _Atomic __block bool once = false;
-
-
-	  NSURLSessionDataTask* const _Nonnull sessionDataTask =
-	  [session dataTaskWithRequest:request
-          completionHandler:^(NSData* const _Nullable pData,
-                              NSURLResponse* const _Nullable pURLResponse,
-                              NSError* const _Nullable pError) {
-								  data = [NSData dataWithData:pData];
-							      response = pURLResponse;
-							      error = pError;
-
-								  once = true;
-							  }
-	  ];
-
-
-
-      [sessionDataTask resume];
-
-      while (!once) {
-          usleep(10000);
-      }
-
-      NSLog(@"Response: %@, Data: %@, Error: %@", response, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error);
-    }
-
-    NSString* _Nullable state = nil;
-    NSString* _Nullable code = nil;
-
-    if (nil != callback_uri) {
-      NSURL* const _Nullable callbackURI = [NSURL URLWithString:callback_uri];
-      NSLog(@"callbackURI: %@", callbackURI);
-
-      NSURLComponents* const URLComponents = [[NSURLComponents alloc] initWithURL:callbackURI resolvingAgainstBaseURL:YES];
-      NSLog(@"URLComponents: %@", URLComponents);
-
-      NSArray<NSURLQueryItem*>* const queryItems = URLComponents.queryItems;
-      NSLog(@"queryItems: %@", queryItems);
-
-      for (NSURLQueryItem* queryItem in queryItems) {
-        NSString* const _Nonnull name = queryItem.name;
-        if ([@"state" isEqualToString:name]) {
-          state = queryItem.value;
-        }
-        else if ([@"code" isEqualToString:name]) {
-          code = queryItem.value;
-        }
-      }
-    }
-
-    NSDictionary* const _Nullable dictionaryValue = query.dictionaryValue;
-    NSMutableDictionary* _Nullable parameters =
-      nil != dictionaryValue ? [NSMutableDictionary dictionaryWithDictionary:dictionaryValue] : nil;
-
-    if (nil == parameters && (nil != state || nil != code)) {
-      parameters = [NSMutableDictionary dictionary];
-    }
-    if (nil != code) {
-      parameters[@"code"] = code;
-    }
-    if (nil != state) {
-      parameters[@"state"] = state;
-    }
-
-    response = [[OIDAuthorizationResponse alloc] initWithRequest:_request
-                                                      parameters:parameters];
-
-    // verifies that the state in the response matches the state in the request, or both are nil
-    if (!OIDIsEqualIncludingNil(_request.state, response.state)) {
-      NSMutableDictionary *userInfo = [query.dictionaryValue mutableCopy];
-      userInfo[NSLocalizedDescriptionKey] =
-        [NSString stringWithFormat:@"State mismatch, expecting %@ but got %@ in authorization "
-                                   "response %@",
-                                   _request.state,
-                                   response.state,
-                                   response];
-      response = nil;
-      error = [NSError errorWithDomain:OIDOAuthAuthorizationErrorDomain
-                                  code:OIDErrorCodeOAuthAuthorizationClientError
-                              userInfo:userInfo];
-    }
+    assert(callback_uri);
+    extractedCallbackURI = [NSURL URLWithString:callback_uri];
+    assert(extractedCallbackURI);
   }
 
   [_externalUserAgent dismissExternalUserAgentAnimated:YES completion:^{
-    [self didFinishWithResponse:response error:error];
+    [self didFinishWithExtractedCallbackURI:extractedCallbackURI error:error];
   }];
 
   return YES;
 }
 
 - (void)failExternalUserAgentFlowWithError:(NSError *)error {
-  [self didFinishWithResponse:nil error:error];
+  [self didFinishWithExtractedCallbackURI:nil error:error];
 }
 
 /*! @brief Invokes the pending callback and performs cleanup.
-    @param response The authorization response, if any to return to the callback.
+    @param extractedCallbackURI The callback URI found in the response, if any to return to the callback.
     @param error The error, if any, to return to the callback.
  */
-- (void)didFinishWithResponse:(nullable OIDAuthorizationResponse *)response
-                        error:(nullable NSError *)error {
+- (void)didFinishWithExtractedCallbackURI:(nullable NSURL *)extractedCallbackURI
+                                    error:(nullable NSError *)error {
   OIDAuthorizationCallback callback = _pendingauthorizationFlowCallback;
   _pendingauthorizationFlowCallback = nil;
   _externalUserAgent = nil;
   if (callback) {
-    callback(response, error);
+    callback(extractedCallbackURI, error);
   }
 }
 

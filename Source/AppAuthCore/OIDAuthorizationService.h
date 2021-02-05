@@ -43,10 +43,10 @@ typedef void (^OIDDiscoveryCallback)(OIDServiceConfiguration *_Nullable configur
 
 /*! @brief Represents the type of block used as a callback for various methods of
         @c OIDAuthorizationService.
-    @param authorizationResponse The authorization response, if available.
+    @param callbackURI The callback URI specified in the response, if available.
     @param error The error if an error occurred.
  */
-typedef void (^OIDAuthorizationCallback)(OIDAuthorizationResponse *_Nullable authorizationResponse,
+typedef void (^OIDAuthorizationCallback)(NSURL *_Nullable callbackURI,
                                          NSError *_Nullable error);
 
 /*! @brief Block used as a callback for the end-session request of @c OIDAuthorizationService.

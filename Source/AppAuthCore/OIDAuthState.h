@@ -42,10 +42,10 @@ typedef void (^OIDAuthStateAction)(NSString *_Nullable accessToken,
 /*! @brief The method called when the @c
         OIDAuthState.authStateByPresentingAuthorizationRequest:presentingViewController:callback:
         method has completed or failed.
-    @param authState The auth state, if the authorization request succeeded.
+    @param extractedCallbackURI The extracted callback URI, if successfully extracted.
     @param error The error if an error occurred.
  */
-typedef void (^OIDAuthStateAuthorizationCallback)(OIDAuthState *_Nullable authState,
+typedef void (^OIDAuthStateAuthorizationCallback)(NSURL *_Nullable extractedCallbackURI,
                                                   NSError *_Nullable error);
 
 /*! @brief A convenience class that retains the auth state between @c OIDAuthorizationResponse%s

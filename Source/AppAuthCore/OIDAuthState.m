@@ -133,46 +133,9 @@ static const NSUInteger kExpiryTimeTolerance = 60;
   id<OIDExternalUserAgentSession> authFlowSession = [OIDAuthorizationService
       presentAuthorizationRequest:authorizationRequest
                 externalUserAgent:externalUserAgent
-                         callback:^(OIDAuthorizationResponse *_Nullable authorizationResponse,
+                         callback:^(NSURL *_Nullable extractedCallbackURI,
                                     NSError *_Nullable authorizationError) {
-                           // inspects response and processes further if needed (e.g. authorization
-                           // code exchange)
-                           if (authorizationResponse) {
-                             if ([authorizationRequest.responseType
-                                     isEqualToString:OIDResponseTypeCode]) {
-                               // if the request is for the code flow (NB. not hybrid), assumes the
-                               // code is intended for this client, and performs the authorization
-                               // code exchange
-                               OIDTokenRequest *tokenExchangeRequest =
-                                   [authorizationResponse tokenExchangeRequest];
-                               [OIDAuthorizationService performTokenRequest:tokenExchangeRequest
-                                              originalAuthorizationResponse:authorizationResponse
-                                   callback:^(OIDTokenResponse *_Nullable tokenResponse,
-                                                         NSError *_Nullable tokenError) {
-                                                OIDAuthState *authState;
-                                                if (tokenResponse) {
-                                                  authState = [[OIDAuthState alloc]
-                                                      initWithAuthorizationResponse:
-                                                          authorizationResponse
-                                                                      tokenResponse:tokenResponse];
-                                                }
-                                                callback(authState, tokenError);
-                               }];
-                             } else {
-                               // hybrid flow (code id_token). Two possible cases:
-                               // 1. The code is not for this client, ie. will be sent to a
-                               //    webservice that performs the id token verification and token
-                               //    exchange
-                               // 2. The code is for this client and, for security reasons, the
-                               //    application developer must verify the id_token signature and
-                               //    c_hash before calling the token endpoint
-                               OIDAuthState *authState = [[OIDAuthState alloc]
-                                   initWithAuthorizationResponse:authorizationResponse];
-                               callback(authState, authorizationError);
-                             }
-                           } else {
-                             callback(nil, authorizationError);
-                           }
+    callback(extractedCallbackURI, authorizationError);
                          }];
   return authFlowSession;
 }
