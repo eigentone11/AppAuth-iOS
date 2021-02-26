@@ -1977,7 +1977,7 @@
 		340E73741C5D819B0076B1F6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1230;
+				LastUpgradeCheck = 1250;
 				ORGANIZATIONNAME = "OpenID Foundation";
 				TargetAttributes = {
 					2D8111F424C0FD4C00984DA7 = {
