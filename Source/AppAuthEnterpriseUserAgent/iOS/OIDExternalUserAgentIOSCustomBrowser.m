@@ -145,7 +145,10 @@ NS_ASSUME_NONNULL_BEGIN
     NSString *testURLString = [NSString stringWithFormat:@"%@://example.com", _canOpenURLScheme];
     NSURL *testURL = [NSURL URLWithString:testURLString];
     if (![[UIApplication sharedApplication] canOpenURL:testURL]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
       [[UIApplication sharedApplication] openURL:_appStoreURL];
+#pragma clang diagnostic pop
       return NO;
     }
   }
@@ -153,7 +156,10 @@ NS_ASSUME_NONNULL_BEGIN
   // Transforms the request URL and opens it.
   NSURL *requestURL = [request externalUserAgentRequestURL];
   requestURL = _URLTransformation(requestURL);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   BOOL openedInBrowser = [[UIApplication sharedApplication] openURL:requestURL];
+#pragma clang diagnostic pop
   return openedInBrowser;
 }
 
