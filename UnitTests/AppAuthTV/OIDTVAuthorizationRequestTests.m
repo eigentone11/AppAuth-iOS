@@ -180,8 +180,11 @@ static NSString *const kHTTPContentTypeHeaderValue =
                                                         scopes:nil
                                           additionalParameters:nil];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
   NSData *data = [NSKeyedArchiver archivedDataWithRootObject:authRequest];
   OIDTVAuthorizationRequest *authRequestCopy = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+#pragma clang diagnostic pop
 
   NSURL *authRequestCopyDeviceAuthorizationEndpoint =
       ((OIDTVServiceConfiguration *)authRequestCopy.configuration).deviceAuthorizationEndpoint;
